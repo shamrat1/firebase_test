@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:test_firestore/utils/constants/sizes.dart';
 import 'package:test_firestore/utils/theme/widget_themes/appbar_theme.dart';
 import 'package:test_firestore/utils/theme/widget_themes/bottom_sheet_theme.dart';
@@ -29,7 +30,11 @@ class TAppTheme {
     outlinedButtonTheme: TOutlinedButtonTheme.lightOutlinedButtonTheme,
     inputDecorationTheme: TTextFormFieldTheme.lightInputDecorationTheme,
     floatingActionButtonTheme: FloatingActionButtonThemeData(
-      shape: const CircleBorder(),
+      sizeConstraints: BoxConstraints(
+          minWidth: 100.w, maxWidth: 150.w, minHeight: 40.h, maxHeight: 60.h),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(TSizes.borderRadiusMd),
+      ),
       backgroundColor: TColors.primary,
       iconSize: TSizes.iconMd,
     ),

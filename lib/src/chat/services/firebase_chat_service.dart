@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:test_firestore/src/chat/models/chat_user.dart';
 import 'package:test_firestore/src/chat/models/conversation.dart';
 import 'package:test_firestore/src/chat/models/message.dart';
+import 'package:test_firestore/utils/storage/shared_prefs.dart';
 import 'package:validators/validators.dart';
 
 class FirebaseChat {
@@ -172,4 +173,23 @@ class FirebaseChat {
                 .map((doc) => Conversation.fromMap(doc.data()))
                 .toList(),
           );
+  Future<List<ChatUser>> users() async {
+    var userID = await SharedPrefs.getString("user_id");
+    print(userID);
+    var response = await _firebaseFirestore
+        .collection('users')
+        .where(
+          'id',
+          isNotEqualTo: userID,
+        )
+        .get();
+    for (var i = 0; i < response.docs.length; i++) {
+      print(response.docs[i].data());
+    }
+    return response.docs
+        .map(
+          (doc) => ChatUser.fromMap(doc.data()),
+        )
+        .toList();
+  }
 }

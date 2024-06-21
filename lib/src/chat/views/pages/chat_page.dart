@@ -1,11 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:test_firestore/src/authentication/services/auth_service.dart';
 import 'package:test_firestore/src/chat/services/firebase_chat_service.dart';
-import 'package:test_firestore/main.dart';
 import 'package:test_firestore/src/chat/views/pages/message_page.dart';
 import 'package:test_firestore/src/chat/models/chat_user.dart';
 import 'package:test_firestore/src/chat/models/conversation.dart';
+import 'package:test_firestore/utils/storage/shared_prefs.dart';
 
 class ChatPage extends StatefulWidget {
   const ChatPage({super.key});
@@ -17,12 +18,17 @@ class ChatPage extends StatefulWidget {
 class _ChatPageState extends State<ChatPage> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   late final FirebaseChat _chat = FirebaseChat(firebaseFirestore: _firestore);
-  late Stream<List<Conversation>> _conversationStream;
+  Stream<List<Conversation>>? _conversationStream;
+  String _userID = "";
 
   @override
   void initState() {
-    _conversationStream = _chat.conversationStream(
-        userId: AuthService.instance.getCurrentUser()?.uid ?? "");
+    SharedPrefs.getString("user_id").then((val) {
+      _userID = val;
+      _conversationStream = _chat.conversationStream(userId: val);
+      setState(() {});
+    });
+
     super.initState();
   }
 
@@ -34,18 +40,19 @@ class _ChatPageState extends State<ChatPage> {
 
   @override
   Widget build(BuildContext context) {
+    if (_conversationStream == null) {
+      return const Center(
+        child: CircularProgressIndicator(),
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: const Text("Conversations"),
       ),
       floatingActionButton: FloatingActionButton(
-        child: const Icon(Icons.add),
-        onPressed: () {
-          _chat.startConversation(
-              recipientIdOrEmail: "fgWXWDITmRQrlkhhXtPT",
-              senderIdOrEmail:
-                  AuthService.instance.getCurrentUser()?.uid ?? "");
-        },
+        child: const Text("New Message"),
+        onPressed: () => context.push("/users"),
       ),
       body: SingleChildScrollView(
         child: Container(
@@ -70,8 +77,7 @@ class _ChatPageState extends State<ChatPage> {
                   itemBuilder: (context, index) {
                     var data = snapshot.data![index];
                     var receiver = (data.participants ?? []).firstWhere(
-                        (e) =>
-                            e.id != AuthService.instance.getCurrentUser()?.uid,
+                        (e) => e.id != _userID,
                         orElse: () => ChatUser());
                     if (receiver.id == null) return const SizedBox.shrink();
                     return GestureDetector(

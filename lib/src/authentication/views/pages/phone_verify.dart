@@ -121,7 +121,7 @@ class _PhoneVerifyPageState extends State<PhoneVerifyPage> {
                           },
                           codeAutoRetrievalTimeout: (val) {});
                       setState(() {
-                        _loading = true;
+                        _loading = false;
                       });
                     }
                   },

@@ -6,6 +6,7 @@ import 'package:test_firestore/src/authentication/views/pages/phone_verify.dart'
 import 'package:test_firestore/src/chat/views/pages/chat_page.dart';
 import 'package:test_firestore/src/chat/views/pages/message_page.dart';
 import 'package:test_firestore/src/home/views/pages/home_page.dart';
+import 'package:test_firestore/src/home/views/pages/users_page.dart';
 
 // GoRouter configuration
 final router = GoRouter(
@@ -41,6 +42,12 @@ final router = GoRouter(
       path: '/messages',
       builder: (context, state) {
         return MessagePage(conversation: state.extra as Conversation);
+      },
+    ),
+    GoRoute(
+      path: '/users',
+      builder: (context, state) {
+        return const UsersPages();
       },
     ),
   ],

@@ -7,10 +7,12 @@ import 'package:test_firestore/src/chat/views/widgets/message_widget.dart';
 import 'package:test_firestore/src/chat/models/chat_user.dart';
 import 'package:test_firestore/src/chat/models/conversation.dart';
 import 'package:test_firestore/src/chat/models/message.dart';
+import 'package:test_firestore/utils/constants/custom_textfields.dart';
 
 class MessagePage extends StatefulWidget {
   MessagePage({super.key, required this.conversation});
   Conversation conversation;
+
   @override
   State<MessagePage> createState() => _MessagePageState();
 }
@@ -47,8 +49,9 @@ class _MessagePageState extends State<MessagePage> {
     return Scaffold(
       appBar: AppBar(
         title: Column(
+          mainAxisAlignment: MainAxisAlignment.end,
           children: [
-            Text(_recipient.name ?? ""),
+            Text(_recipient.phone ?? ""),
             if ((_recipient.isOnline ?? false)) const Text("Online")
           ],
         ),
@@ -91,9 +94,9 @@ class _MessagePageState extends State<MessagePage> {
                   children: [
                     SizedBox(
                       width: MediaQuery.of(context).size.width * 0.75,
-                      child: TextFormField(
-                        controller: _messageController,
-                      ),
+                      child: TCustomTextFields.textFieldOne(
+                          context, _messageController,
+                          hintText: "Enter your message"),
                     ),
                     GestureDetector(
                         onTap: () {

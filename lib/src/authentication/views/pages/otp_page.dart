@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:go_router/go_router.dart';
 import 'package:test_firestore/src/authentication/services/auth_service.dart';
 import 'package:test_firestore/src/authentication/views/widgets/social_icon_button.dart';
@@ -110,24 +111,27 @@ class _PhoneVerifyPageState extends State<OtpPage> {
                   onPressed: () async {
                     if (_loading) return;
                     try {
-                      setState(() {
-                        _loading = true;
-                      });
-                      PhoneAuthCredential credential =
-                          await PhoneAuthProvider.credential(
-                              verificationId: widget.verificationId,
-                              smsCode: _otpController.text);
-                      AuthService.instance.signInWithCredential(credential);
+                      if (_validate()) {
+                        setState(() {
+                          _loading = true;
+                        });
+                        PhoneAuthCredential credential =
+                            await PhoneAuthProvider.credential(
+                                verificationId: widget.verificationId,
+                                smsCode: _otpController.text);
+                        AuthService.instance.signInWithCredential(credential);
+                      }
                     } catch (e) {
-                      ScaffoldMessenger.of(context)
-                          .showSnackBar(SnackBar(content: Text(e.toString())));
+                      Fluttertoast.showToast(msg: e.toString());
                     } finally {
                       setState(() {
                         _loading = true;
                       });
                     }
                   },
-                  child: const Text("Verify"),
+                  child: _loading
+                      ? const CircularProgressIndicator()
+                      : const Text("Verify"),
                 ),
               ),
               Padding(
