@@ -1,11 +1,17 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
+import 'package:test_firestore/main.dart';
 import 'package:test_firestore/src/authentication/services/auth_service.dart';
 import 'package:test_firestore/src/chat/services/firebase_chat_service.dart';
 import 'package:test_firestore/src/chat/views/pages/message_page.dart';
 import 'package:test_firestore/src/chat/models/chat_user.dart';
 import 'package:test_firestore/src/chat/models/conversation.dart';
+import 'package:test_firestore/utils/constants/colors.dart';
+import 'package:test_firestore/utils/constants/shadows.dart';
+import 'package:test_firestore/utils/constants/sizes.dart';
 import 'package:test_firestore/utils/storage/shared_prefs.dart';
 
 class ChatPage extends StatefulWidget {
@@ -66,11 +72,11 @@ class _ChatPageState extends State<ChatPage> {
                     child: CircularProgressIndicator(),
                   );
                 }
-                // if (snapshot.connectionState != ConnectionState.done) {
-                //   return const Center(
-                //     child: Text("Failed to load"),
-                //   );
-                // }
+                if (snapshot.hasError) {
+                  return Center(
+                    child: Text(snapshot.error.toString()),
+                  );
+                }
 
                 return ListView.builder(
                   itemCount: (snapshot.data ?? []).length,
@@ -82,32 +88,63 @@ class _ChatPageState extends State<ChatPage> {
                     if (receiver.id == null) return const SizedBox.shrink();
                     return GestureDetector(
                       onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (ctx) => MessagePage(conversation: data),
-                          ),
-                        );
+                        context.push("/messages", extra: data);
                       },
                       child: Container(
                         decoration: BoxDecoration(
                           color: Colors.white,
-                          borderRadius: BorderRadius.circular(5),
-                          boxShadow: [
-                            BoxShadow(
-                                color: Colors.grey.shade100,
-                                blurRadius: 5,
-                                spreadRadius: 5),
-                          ],
+                          borderRadius:
+                              BorderRadius.circular(TSizes.borderRadiusMd),
+                          boxShadow: TShadows.primaryBoxShadow,
                         ),
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 8, horizontal: 16),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        padding: EdgeInsets.symmetric(
+                            vertical: 12.h, horizontal: 16.w),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            Text(receiver.name ?? ""),
-                            Text(data.lastMessage?.message ?? "N/A")
+                            Padding(
+                              padding: EdgeInsets.only(right: 8.w),
+                              child: const Icon(
+                                Icons.message_rounded,
+                                color: TColors.darkGrey,
+                              ),
+                            ),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  receiver.phone ?? "",
+                                  style: Theme.of(context).textTheme.bodyMedium,
+                                ),
+                                SizedBox(
+                                  width: 280.w,
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        data.lastMessage?.message ?? "N/A",
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .labelLarge,
+                                      ),
+                                      if (data.lastMessage?.timestamp != null)
+                                        Text(
+                                          dateFormat.format(
+                                              data.lastMessage!.timestamp!),
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .labelSmall,
+                                        )
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
                           ],
                         ),
                       ),

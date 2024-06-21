@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
+import 'package:test_firestore/src/authentication/services/auth_service.dart';
 import 'package:test_firestore/src/authentication/views/widgets/social_icon_button.dart';
 import 'package:test_firestore/utils/constants/colors.dart';
 import 'package:test_firestore/utils/constants/custom_textfields.dart';
@@ -105,7 +106,8 @@ class _PhoneVerifyPageState extends State<PhoneVerifyPage> {
                       });
                       await FirebaseAuth.instance.verifyPhoneNumber(
                           phoneNumber: "+88${_phoneController.text}",
-                          verificationCompleted: _signInWithCredential,
+                          verificationCompleted:
+                              AuthService.instance.signInWithCredential,
                           verificationFailed: (FirebaseAuthException e) {
                             ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(content: Text(e.message ?? "")));

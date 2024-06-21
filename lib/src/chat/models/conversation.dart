@@ -28,10 +28,12 @@ class Conversation {
           map['participants']?.map((x) => ChatUser.fromMap(x))),
       participantsIds: List<String>.from(map['participantsIds']),
       initiatedBy: map['initiatedBy'],
-      initiatedAt: DateTime.parse(map['initiatedAt']),
+      initiatedAt: DateTime.fromMillisecondsSinceEpoch(map['initiatedAt']),
       lastUpdatedAt: DateTime.fromMillisecondsSinceEpoch(map['lastUpdatedAt']),
       documentId: map['documentId'],
-      lastMessage: Message.fromMap(map['lastMessage']),
+      lastMessage: map['lastMessage'] != null
+          ? Message.fromMap(map['lastMessage'])
+          : null,
     );
   }
 
@@ -41,7 +43,7 @@ class Conversation {
 
   Map<String, dynamic> toMap() {
     return {
-      'participants': participants?.map((x) => x.toMap()).toList(),
+      'participants': participants?.map((x) => x.toJson()).toList(),
       'participantsIds': participantsIds,
       'initiatedBy': initiatedBy,
       'initiatedAt': initiatedAt?.millisecondsSinceEpoch,

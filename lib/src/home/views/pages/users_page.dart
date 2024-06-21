@@ -49,7 +49,7 @@ class _UsersPagesState extends ConsumerState<UsersPages> {
                   .startConversation(
                       recipientIdOrEmail: _users[index].id ?? "",
                       senderIdOrEmail: userID);
-              context.go('/messages', extra: conversation);
+              context.pushReplacement('/messages', extra: conversation);
             } catch (e) {
               Fluttertoast.showToast(msg: e.toString());
             } finally {

@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:collection/collection.dart';
 import 'package:test_firestore/src/chat/models/chat_user.dart';
 import 'package:test_firestore/src/chat/models/conversation.dart';
 import 'package:test_firestore/src/chat/models/message.dart';
@@ -80,6 +81,29 @@ class FirebaseChat {
         final recipientUser = ChatUser.fromMap(recipient);
         final senderUser = ChatUser.fromMap(sender);
 
+        final existingConversationSnapshot = await _firebaseFirestore
+            .collection('conversations')
+            // .where('participantsIds', whereIn: [recipientUser.id])
+            .where('participantsIds', arrayContains: senderUser.id)
+            .get();
+
+        final currentConv =
+            existingConversationSnapshot.docs.firstWhereOrNull((e) {
+          var participantsArr = e.data()['participantsIds'] as List<dynamic>;
+          if (participantsArr.contains(recipientUser.id)) {
+            return true;
+          }
+          return false;
+        });
+        // print(existingConversationSnapshot.docs.first.data());
+        // throw Exception("For testing");
+        if (currentConv != null) {
+          print("Existing conversation found. redirecting...");
+          final existingConversationData = currentConv.data();
+
+          return Conversation.fromMap(existingConversationData);
+        }
+
         final conversation = Conversation(
           participants: [recipientUser, senderUser],
           initiatedBy: senderUser.id,
@@ -159,20 +183,23 @@ class FirebaseChat {
                 .toList(),
           );
 
-  Stream<List<Conversation>> conversationStream({required String userId}) =>
-      _firebaseFirestore
-          .collection('conversations')
-          .where(
-            'participantsIds',
-            arrayContains: userId,
-          )
-          .orderBy('lastUpdatedAt', descending: true)
-          .snapshots()
-          .map(
-            (querySnapshot) => querySnapshot.docs
-                .map((doc) => Conversation.fromMap(doc.data()))
-                .toList(),
-          );
+  Stream<List<Conversation>> conversationStream({required String userId}) {
+    var snapshots = _firebaseFirestore
+        .collection('conversations')
+        .where(
+          'participantsIds',
+          arrayContains: userId,
+        )
+        .orderBy('lastUpdatedAt', descending: true)
+        .snapshots();
+
+    return snapshots.map(
+      (querySnapshot) => querySnapshot.docs
+          .map((doc) => Conversation.fromMap(doc.data()))
+          .toList(),
+    );
+  }
+
   Future<List<ChatUser>> users() async {
     var userID = await SharedPrefs.getString("user_id");
     print(userID);
@@ -183,9 +210,7 @@ class FirebaseChat {
           isNotEqualTo: userID,
         )
         .get();
-    for (var i = 0; i < response.docs.length; i++) {
-      print(response.docs[i].data());
-    }
+
     return response.docs
         .map(
           (doc) => ChatUser.fromMap(doc.data()),

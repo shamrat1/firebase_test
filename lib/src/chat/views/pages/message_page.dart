@@ -8,6 +8,7 @@ import 'package:test_firestore/src/chat/models/chat_user.dart';
 import 'package:test_firestore/src/chat/models/conversation.dart';
 import 'package:test_firestore/src/chat/models/message.dart';
 import 'package:test_firestore/utils/constants/custom_textfields.dart';
+import 'package:test_firestore/utils/storage/shared_prefs.dart';
 
 class MessagePage extends StatefulWidget {
   MessagePage({super.key, required this.conversation});
@@ -21,40 +22,30 @@ class _MessagePageState extends State<MessagePage> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   late final FirebaseChat _chat = FirebaseChat(firebaseFirestore: _firestore);
   late Stream<List<Message>> _messagesStream;
-  late ChatUser _recipient;
+  ChatUser? _recipient;
   final TextEditingController _messageController = TextEditingController();
   @override
   void initState() {
-    var recipient = (widget.conversation.participants ?? []).firstWhere(
-      (e) => e.id != AuthService.instance.getCurrentUser()?.uid,
-      orElse: () => ChatUser(),
-    );
-    if (recipient.id == null) {
-      throw Exception("No Recipient found");
-    }
-    _recipient = recipient;
+    SharedPrefs.getString("user_id").then((val) {
+      var recipient = (widget.conversation.participants ?? []).firstWhere(
+        (e) => e.id != val,
+        orElse: () => ChatUser(),
+      );
+      if (recipient.id == null) {
+        throw Exception("No Recipient found");
+      }
+      _recipient = recipient;
+    });
     _messagesStream =
         _chat.messageStream(id: widget.conversation.documentId ?? "");
     super.initState();
   }
 
   @override
-  void dispose() {
-    // _conversationStream.cancel();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Column(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            Text(_recipient.phone ?? ""),
-            if ((_recipient.isOnline ?? false)) const Text("Online")
-          ],
-        ),
+        title: Text(_recipient?.phone ?? ""),
       ),
       body: SizedBox(
         height: MediaQuery.of(context).size.height - kToolbarHeight,
@@ -110,7 +101,7 @@ class _MessagePageState extends State<MessagePage> {
                                     senderId: AuthService.instance
                                         .getCurrentUser()
                                         ?.uid,
-                                    recipientId: _recipient.id ?? "",
+                                    recipientId: _recipient?.id ?? "",
                                   ),
                                   id: widget.conversation.documentId ?? "")
                               .then((_) => setState(() {

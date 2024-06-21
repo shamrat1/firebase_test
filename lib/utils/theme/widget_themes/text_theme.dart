@@ -32,9 +32,15 @@ class TTextTheme {
     labelLarge: GoogleFonts.lato(
         fontSize: 12.sp, fontWeight: FontWeight.normal, color: TColors.dark),
     labelMedium: GoogleFonts.lato(
-        fontSize: 12.sp,
-        fontWeight: FontWeight.normal,
-        color: TColors.dark.withOpacity(0.5)),
+      fontSize: 12.sp,
+      fontWeight: FontWeight.normal,
+      color: TColors.dark.withOpacity(0.5),
+    ),
+    labelSmall: GoogleFonts.lato(
+      fontSize: 10.sp,
+      fontWeight: FontWeight.normal,
+      color: TColors.darkGrey,
+    ),
   );
 
   /// Customizable Dark Text Theme
