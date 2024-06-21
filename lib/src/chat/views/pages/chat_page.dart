@@ -97,6 +97,7 @@ class _ChatPageState extends State<ChatPage> {
                               BorderRadius.circular(TSizes.borderRadiusMd),
                           boxShadow: TShadows.primaryBoxShadow,
                         ),
+                        margin: EdgeInsets.symmetric(vertical: 4.h),
                         padding: EdgeInsets.symmetric(
                             vertical: 12.h, horizontal: 16.w),
                         child: Row(
