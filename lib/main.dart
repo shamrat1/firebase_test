@@ -1,3 +1,4 @@
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -10,14 +11,20 @@ import 'package:test_firestore/utils/theme/theme.dart';
 
 import 'firebase_options.dart';
 
-// var currentUserID = "zxzCAPptuyR6hiLnOarK";
 var dateFormat = DateFormat('MM/dd/yyyy hh:mm a');
+
+Future<void> foregroundMsgHandler(RemoteMessage msg) async {
+  print(msg.notification?.title ?? "Title");
+  print(msg.notification?.body ?? "Body");
+}
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
   await SharedPrefs.init();
+  FirebaseMessaging.onBackgroundMessage(foregroundMsgHandler);
   runApp(const MyApp());
 }
 
@@ -29,12 +36,6 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  // final FirestoreService _firestoreService = FirestoreService(docID: "1111");
-  @override
-  void initState() {
-    super.initState();
-  }
-
   @override
   Widget build(BuildContext context) {
     return ProviderScope(

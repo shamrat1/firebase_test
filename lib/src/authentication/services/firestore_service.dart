@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:test_firestore/src/chat/models/chat_user.dart';
+import 'package:test_firestore/utils/storage/shared_prefs.dart';
 
 class FirestoreService {
   String collection;
@@ -44,5 +45,14 @@ class FirestoreService {
     } catch (e) {
       print("Error updating data: $e");
     }
+  }
+
+  Future<void> syncToken(String token) async {
+    var userID = await SharedPrefs.getString("user_id");
+    CollectionReference myCollection =
+        FirebaseFirestore.instance.collection(collection);
+    myCollection.doc(userID).update({
+      "push_token": token,
+    });
   }
 }

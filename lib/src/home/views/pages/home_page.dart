@@ -1,7 +1,10 @@
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:test_firestore/src/authentication/services/auth_service.dart';
+import 'package:test_firestore/src/authentication/services/firestore_service.dart';
+import 'package:test_firestore/utils/notification/notification_service.dart';
 import 'package:test_firestore/utils/storage/shared_prefs.dart';
 
 class HomePage extends StatefulWidget {
@@ -14,6 +17,29 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   @override
   void initState() {
+    LocalNotificationService.initialize();
+    FirebaseMessaging.instance.requestPermission();
+
+    FirebaseMessaging.instance.getToken().then((token) {
+      if (token == null) return;
+      FirestoreService(collection: "users").syncToken(token);
+    });
+    FirebaseMessaging.onMessage.listen((RemoteMessage msg) {
+      showAdaptiveDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog.adaptive(
+              title: Text(msg.notification?.title ?? ""),
+              content: Text(msg.notification?.body ?? ""),
+              actions: [
+                ElevatedButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text("Ok"))
+              ],
+            );
+          });
+      LocalNotificationService.display(msg);
+    });
     super.initState();
   }
 
