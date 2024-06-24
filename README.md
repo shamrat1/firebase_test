@@ -35,7 +35,7 @@ This project demonstrates Firebase firestore, cloud messaging and phone authenti
 -   Run `git clone https://github.com/shamrat1/firebase_test.git` to clone the repository.
 -   Navigate into the cloned repository using `cd`.
 -   Run `flutter pub get` to fetch dependencies.
--   In [Cloud Messagin Service](https://github.com/shamrat1/firebase_test/blob/main/lib/utils/notification/cloud_messaging_service.dart), get your service account json file from firebase project settings and paste it in line 16 to 30. Otherwise push notifications will not work. 
+-   In [Cloud Messaging Service](https://github.com/shamrat1/firebase_test/blob/main/lib/utils/notification/cloud_messaging_service.dart), get your service account json file from firebase project settings and paste it in line 16 to 30. Otherwise push notifications will not work. 
 -   Connect a device or start an emulator.
 -   Ensure the device is recognized with `flutter devices`.
 -   Run the project using `flutter run`.
