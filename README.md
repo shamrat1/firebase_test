@@ -1,7 +1,7 @@
 # Firebase Test Project
 This project demonstrates Firebase firestore, cloud messaging and phone authentication system. A user can enter his phone number to login. An OTP code will be sent. Enter the OTP and authenticate. User will be redirected to home page. User will see a button to go to conversations page and another button to get an instant test notification. In conversation page, user will see all his recent conversations and can continue chat by just tapping on the conversation tile or he can press "New Message" button in the bottom right area of the screen. He'll be redirected to all users list where he can select any user to create a new chat or continue old chat. In the messages page, he'll see all his messages on right side and recipient's messages on left side. A tap on message bubble will show the message sent timestamp.
 
-[Download APK](https://github.com/shamrat1/firebase_test/blob/apks/app-release.apk)
+[Download APK](https://github.com/shamrat1/firebase_test/blob/main/apks/app-release.apk)
 ## Features
 
  - Password less login Feature with Firebase Phone Authentication system
