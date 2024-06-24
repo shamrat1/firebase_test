@@ -1,11 +1,16 @@
 import 'dart:async';
+import 'dart:convert';
+import 'dart:developer';
+import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:collection/collection.dart';
 import 'package:test_firestore/src/chat/models/chat_user.dart';
 import 'package:test_firestore/src/chat/models/conversation.dart';
 import 'package:test_firestore/src/chat/models/message.dart';
+import 'package:test_firestore/utils/notification/cloud_messaging_service.dart';
 import 'package:test_firestore/utils/storage/shared_prefs.dart';
 import 'package:validators/validators.dart';
+import 'package:http/http.dart' as http;
 
 class FirebaseChat {
   FirebaseChat({
@@ -163,6 +168,9 @@ class FirebaseChat {
         'lastUpdatedAt': Timestamp.now().millisecondsSinceEpoch,
         'lastMessage': messageAsMap,
       });
+      if (message.recipientId != null) {
+        _notifyRecipient(message.recipientId!, message.message ?? "");
+      }
     } catch (e) {
       throw Exception(e);
     }
@@ -202,7 +210,6 @@ class FirebaseChat {
 
   Future<List<ChatUser>> users() async {
     var userID = await SharedPrefs.getString("user_id");
-    print(userID);
     var response = await _firebaseFirestore
         .collection('users')
         .where(
@@ -216,5 +223,37 @@ class FirebaseChat {
           (doc) => ChatUser.fromMap(doc.data()),
         )
         .toList();
+  }
+
+  Future<void> _notifyRecipient(String recipientID, String msg) async {
+    try {
+      final userDocument = await _firebaseFirestore
+          .collection('users')
+          .where(
+            'id',
+            isEqualTo: recipientID,
+          )
+          .get();
+      final recipient = ChatUser.fromMap(userDocument.docs.first.data());
+      print(recipient.toJson());
+      final body = {
+        "to": recipient.pushToken,
+        "notification": {
+          "title": "You've received a new message",
+          "body": msg,
+        },
+      };
+      CloudMessagingService().sendFcmMessage({
+        "message": {
+          "token": recipient.pushToken ?? "",
+          "notification": {
+            "body": msg,
+            "title": "You've received a new message",
+          }
+        }
+      });
+    } catch (e) {
+      log('Notification Exception: $e');
+    }
   }
 }

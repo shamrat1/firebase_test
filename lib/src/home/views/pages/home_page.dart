@@ -1,9 +1,13 @@
+import 'dart:async';
+
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
+import 'package:test_firestore/main.dart';
 import 'package:test_firestore/src/authentication/services/auth_service.dart';
 import 'package:test_firestore/src/authentication/services/firestore_service.dart';
+import 'package:test_firestore/utils/notification/cloud_messaging_service.dart';
 import 'package:test_firestore/utils/notification/notification_service.dart';
 import 'package:test_firestore/utils/storage/shared_prefs.dart';
 
@@ -15,14 +19,18 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  String? _token;
   @override
   void initState() {
     LocalNotificationService.initialize();
     FirebaseMessaging.instance.requestPermission();
 
-    FirebaseMessaging.instance.getToken().then((token) {
+    FirebaseMessaging.instance.getToken().then((token) async {
       if (token == null) return;
-      FirestoreService(collection: "users").syncToken(token);
+      _token = token;
+
+      await FirestoreService(collection: "users").syncToken(token);
+      setState(() {});
     });
     FirebaseMessaging.onMessage.listen((RemoteMessage msg) {
       showAdaptiveDialog(
@@ -75,6 +83,25 @@ class _HomePageState extends State<HomePage> {
               onPressed: () => context.push('/chats'),
               child: const Text("Go to Conversations"),
             ),
+            if (_token != null)
+              Padding(
+                padding: EdgeInsets.only(top: 16.h),
+                child: ElevatedButton(
+                  onPressed: () {
+                    CloudMessagingService().sendFcmMessage({
+                      "message": {
+                        "token": _token ?? "",
+                        "notification": {
+                          "body":
+                              "This message is trigged from Home page at ${dateFormat.format(DateTime.now())}",
+                          "title": "Notification Triggered by user",
+                        }
+                      }
+                    });
+                  },
+                  child: const Text("Trigger a notification"),
+                ),
+              ),
           ],
         ),
       ),

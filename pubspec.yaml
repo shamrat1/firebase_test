@@ -46,6 +46,8 @@ dependencies:
   fluttertoast: ^8.2.6
   collection: ^1.18.0
   flutter_local_notifications: ^17.1.2
+  googleapis_auth: ^1.6.0
+  googleapis: ^13.2.0
 
 dev_dependencies:
   flutter_test:

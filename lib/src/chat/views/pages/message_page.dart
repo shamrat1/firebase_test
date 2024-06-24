@@ -24,6 +24,7 @@ class _MessagePageState extends State<MessagePage> {
   late Stream<List<Message>> _messagesStream;
   ChatUser? _recipient;
   final TextEditingController _messageController = TextEditingController();
+  String? _userID;
   @override
   void initState() {
     SharedPrefs.getString("user_id").then((val) {
@@ -35,6 +36,8 @@ class _MessagePageState extends State<MessagePage> {
         throw Exception("No Recipient found");
       }
       _recipient = recipient;
+      _userID = val;
+      setState(() {});
     });
     _messagesStream =
         _chat.messageStream(id: widget.conversation.documentId ?? "");
@@ -71,8 +74,10 @@ class _MessagePageState extends State<MessagePage> {
                         reverse: true,
                         itemCount: messages.length,
                         itemBuilder: (context, index) => MessageWidget(
-                            message: messages[index],
-                            conversation: widget.conversation),
+                          message: messages[index],
+                          conversation: widget.conversation,
+                          userID: _userID ?? "",
+                        ),
                       );
                     }),
               ),
